@@ -1,0 +1,199 @@
+---
+title: "Predicting Property Values"
+author: "Anthony J Smith"
+format: html
+editor: visual
+---
+
+```{r message=FALSE}
+#Libraries 
+library(tidyverse)
+library(tidymodels)
+library(kableExtra)
+library(magrittr)
+library(dplyr)
+library(ggplot2)
+```
+
+```{r message=FALSE}
+zillow_data <- read_csv("E:/MAT434/snhu-mat434-zillow-classification-challenge/data.csv")
+```
+
+## Statement of Purpose
+
+Real estate prices in Austin Texas have skyrocketed over recent years. This analysis explores data from Austin's market to develop an understanding of what features contribute to a properties value. Knowledge of this can be used to make future predictions on property value based on these features.
+
+## Exploratory Analysis
+
+The data contains `r zillow_data %>% nrow()` rows of observations with `r zillow_data %>% ncol()` variables. These variables are:
+
+```{r}
+# convert column names to a dataframe
+colnames_df <- data.frame((colnames(zillow_data)))
+# Rename the header
+colnames(colnames_df)[1] <- "Variables"
+
+
+# display in table
+colnames_df %>%
+  knitr::kable() %>%
+  kableExtra::kable_styling(bootstrap_options = c("hover", "striped"))
+```
+
+The first few properties are printed next.
+
+```{r}
+zillow_data %>%
+  head() %>%
+  kable() %>%
+  kable_styling(bootstrap_options = c("hover", "striped"))
+```
+
+```{r}
+counts <- table(zillow_data$homeType)
+```
+
+Supply and demand is a common way of determining value, however we are currently unaware of what the *supply* is nor where the *demand* may be. There are `r counts['Single Family']` single family homes, `r counts['MultiFamily']` multifamily homes, `r counts['Condo']` condos, `r counts['Townhouse']` town houses, `r counts ['Mobile / Manufactured']` manufactured homes, `r counts ['Multiple Occupancy']` multiple occupancy's, and `r counts['Residential']` residential homes. A visual representation of this is shown below.
+
+```{r}
+options(repr.plot.width=25, repr.plot.height=27)
+
+# Create a data frame with the counts
+homeType_barchart <- data.frame(
+  home_type = names(counts),
+  count = as.numeric(counts)
+)
+
+# Reorder the factor levels based on the count
+homeType_barchart$home_type <- reorder(homeType_barchart$home_type, homeType_barchart$count)
+
+# Create a bar chart
+ggplot(homeType_barchart, aes(x = home_type, y = count, fill = home_type)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Distribution of Different Home Types") +
+  ylab("Number of Property Types") +
+  xlab("Count") +
+  
+  coord_flip()
+```
+
+Above, we can see that Single Family homes take up a significantly large portion of the market. Below we display the same data, but this time removing Single Family homes for visual aid.
+
+```{r}
+options(repr.plot.width=25, repr.plot.height=27)
+
+# Create a data frame with the counts
+homeType_barchart <- data.frame(
+  home_type = names(counts),
+  count = as.numeric(counts)
+)
+
+# Filter out "Single Family"
+homeType_barchart <- homeType_barchart[homeType_barchart$home_type != "Single Family",]
+#homeType_barchart <- homeType_barchart[homeType_barchart$home_type != "Condo",]
+
+# Reorder the factor levels based on the count
+homeType_barchart$home_type <- reorder(homeType_barchart$home_type, homeType_barchart$count)
+
+# Create a bar chart
+ggplot(homeType_barchart, aes(x = home_type, y = count, fill = home_type)) +
+  geom_bar(stat = "identity") +
+  labs(title = "Distribution of Different Home Types") +
+  ylab("Number of Property Types") +
+  xlab("Count") +
+  
+  coord_flip()
+```
+
+But does the property type have an affect on its value? We'll test this by creating our training and test data.
+
+```{r}
+names(zillow_data) <- janitor::make_clean_names(names(zillow_data))
+  
+set.seed(434)
+
+zillow_data_split <- initial_split(zillow_data, prop = 0.75)
+zillow_training <- training(zillow_data_split)
+zillow_test <- testing(zillow_data_split)
+```
+
+```{r}
+# create cross validation folds
+train_folds <- vfold_cv(zillow_training, v = 6)
+```
+
+```{r}
+dt_spec <- decision_tree() %>%
+  set_engine("rpart") %>%
+  set_mode("classification")
+```
+
+```{r}
+# setting the recipe to predict the price range based on home type, year built, lot size, number of bathrooms and number of bedrooms
+dt_rec <- recipe(price_range ~ home_type + year_built + lot_size_sq_ft + num_of_bathrooms + num_of_bedrooms + has_spa, data = zillow_training) %>%
+  step_impute_median(all_numeric_predictors()) %>% 
+  step_impute_mode(all_nominal_predictors()) %>%
+  step_dummy(all_nominal_predictors())
+```
+
+```{r}
+# creating the workflow from specification and recipe
+dt_wf <- workflow() %>%
+  add_model(dt_spec) %>%
+  add_recipe(dt_rec)
+```
+
+```{r}
+dt_cv_results <- dt_wf %>%
+  fit_resamples(train_folds)
+```
+
+```{r}
+dt_cv_results %>%
+  collect_metrics()
+```
+
+```{r}
+dt_cv_results %>%
+  collect_metrics(summarize = FALSE)
+```
+
+The current model has low confidence in understanding what determines the homes values.
+
+<!-- It's possible that the size of a home plays a significant role on a homes value. -->
+
+<!-- ```{r} -->
+
+<!-- ggplot(data = zillow_data, mapping = aes(lotSizeSqFt, priceRange)) + -->
+
+<!--   labs(x = "Lot Size (Sq Ft)", y = "Price Range", title = "Price Range vs Lot Size") -->
+
+<!-- ``` -->
+
+<!-- ```{r} -->
+
+<!-- zillow_training %>% -->
+
+<!--   select(-description) %>% -->
+
+<!--   head() %>% -->
+
+<!--   kable() %>% -->
+
+<!--   kable_styling(bootstrap_options = c("stripped", "hover")) -->
+
+<!-- ``` -->
+
+<!-- ```{r} -->
+
+<!-- zillow_training %>% -->
+
+<!--   ggplot() +  -->
+
+<!--   geom_boxplot(aes(x = lotSizeSqFt, fill = homeType, y = homeType)) + -->
+
+<!--   # xlim(c(0,5000)) zooms in the scale but then leaves out other valuable information -->
+
+<!--   scale_x_log10() -->
+
+<!-- ``` -->
