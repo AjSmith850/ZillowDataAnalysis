@@ -17,6 +17,11 @@ library(ggplot2)
 
 ```{r message=FALSE}
 zillow_data <- read_csv("E:/MAT434/snhu-mat434-zillow-classification-challenge/data.csv")
+names(zillow_data) <- janitor::make_clean_names(names(zillow_data))
+
+# add new data to perform predictions on based on learning from previous data
+comp <- read_csv("E:/MAT434/comp_csv/comp.csv")
+names(comp) <- janitor::make_clean_names(names(comp))
 ```
 
 ## Statement of Purpose
@@ -50,7 +55,7 @@ zillow_data %>%
 ```
 
 ```{r}
-counts <- table(zillow_data$homeType)
+counts <- table(zillow_data$home_type)
 ```
 
 Supply and demand is a common way of determining value, however we are currently unaware of what the *supply* is nor where the *demand* may be. There are `r counts['Single Family']` single family homes, `r counts['MultiFamily']` multifamily homes, `r counts['Condo']` condos, `r counts['Townhouse']` town houses, `r counts ['Mobile / Manufactured']` manufactured homes, `r counts ['Multiple Occupancy']` multiple occupancy's, and `r counts['Residential']` residential homes. A visual representation of this is shown below.
@@ -93,107 +98,173 @@ homeType_barchart <- homeType_barchart[homeType_barchart$home_type != "Single Fa
 #homeType_barchart <- homeType_barchart[homeType_barchart$home_type != "Condo",]
 
 # Reorder the factor levels based on the count
-homeType_barchart$home_type <- reorder(homeType_barchart$home_type, homeType_barchart$count)
+#homeType_barchart$home_type <- reorder(homeType_barchart$home_type, homeType_barchart$count)
 
 # Create a bar chart
-ggplot(homeType_barchart, aes(x = home_type, y = count, fill = home_type)) +
-  geom_bar(stat = "identity") +
-  labs(title = "Distribution of Different Home Types") +
-  ylab("Number of Property Types") +
-  xlab("Count") +
-  
-  coord_flip()
+
 ```
 
 But does the property type have an affect on its value? We'll test this by creating our training and test data.
 
 ```{r}
-names(zillow_data) <- janitor::make_clean_names(names(zillow_data))
-  
 set.seed(434)
 
 zillow_data_split <- initial_split(zillow_data, prop = 0.75)
 zillow_training <- training(zillow_data_split)
 zillow_test <- testing(zillow_data_split)
-```
 
-```{r}
 # create cross validation folds
-train_folds <- vfold_cv(zillow_training, v = 6)
+train_folds <- vfold_cv(zillow_training, v = 10)
 ```
 
+## Building Decision Tree
+
 ```{r}
-dt_spec <- decision_tree() %>%
+#Create a model specification
+dt_spec <- decision_tree(tree_depth = tune()) %>%
   set_engine("rpart") %>%
-  set_mode("classification")
-```
+  set_mode("classification") 
 
-```{r}
-# setting the recipe to predict the price range based on home type, year built, lot size, number of bathrooms and number of bedrooms
-dt_rec <- recipe(price_range ~ home_type + year_built + lot_size_sq_ft + num_of_bathrooms + num_of_bedrooms + has_spa, data = zillow_training) %>%
+grid_depth <- tibble(
+  "tree_depth" = c(2, 3, 4, 5, 8, 10, 12, 15, 20))
+
+#Create a recipe
+dt_rec <- recipe(price_range ~ ., data = zillow_training) %>%
+  step_rm(description) %>%
   step_impute_median(all_numeric_predictors()) %>% 
   step_impute_mode(all_nominal_predictors()) %>%
+  step_novel(all_nominal_predictors()) %>%
+  step_unknown(all_nominal_predictors()) %>%
   step_dummy(all_nominal_predictors())
-```
 
-```{r}
-# creating the workflow from specification and recipe
+
 dt_wf <- workflow() %>%
-  add_model(dt_spec) %>%
+  add_model(dt_spec) %>% 
   add_recipe(dt_rec)
+
+#metrics <- metric_set(accuracy, m_log_loss)
+
+dt_tune_results <- dt_wf %>%
+  tune_grid(grid = grid_depth,
+    resamples = train_folds)
+
+dt_tune_results %>%
+  collect_metrics() %>%
+  arrange(-mean) %>%
+  kable() %>%
+  kable_styling(bootstrap_options = c("hover", "striped"))
+
 ```
 
 ```{r}
-dt_cv_results <- dt_wf %>%
+dt_clf_spec <- decision_tree(tree_depth = 5) %>%
+  set_engine("rpart") %>%
+  set_mode("classification") 
+
+dt_rec <- recipe( price_range ~ ., data = zillow_training) %>%
+  step_rm(description) %>%
+  step_impute_median(all_numeric_predictors()) %>% 
+  step_impute_mode(all_nominal_predictors()) %>%
+  step_novel(all_nominal_predictors()) %>%
+  step_unknown(all_nominal_predictors()) %>%
+  step_dummy(all_nominal_predictors())
+
+dt_wf <- workflow() %>%
+  add_model(dt_clf_spec) %>%
+  add_recipe(dt_rec)
+
+dt_fit <- dt_wf %>%
+  fit(zillow_training)
+
+# Predictions with new dataset
+dt_fit %>%
+  augment(comp)
+
+submission_df <- dt_fit %>%
+  augment(comp) %>%
+  select(id, contains(".pred"), -.pred_class) %>%
+  rename(prob_A = ".pred_0-250000",
+         prob_B = ".pred_250000-350000",
+         prob_C = ".pred_350000-450000",
+         prob_D = ".pred_450000-650000",
+         prob_E = ".pred_650000+")
+
+write.csv(submission_df, "submission.csv", row.names = FALSE)
+```
+
+## KNN Model Construction and Interpretation
+
+```{r}
+#knn workflow
+knn_spec <- nearest_neighbor() %>%
+  set_engine("kknn") %>%
+  set_mode("classification")
+
+# building recipe
+knn_rec <- recipe(price_range ~ lot_size_sq_ft + num_of_bedrooms + num_of_bathrooms + avg_school_rating, data = zillow_training) %>%
+  step_impute_median(all_numeric_predictors()) %>%
+  step_unknown(all_nominal_predictors()) %>%
+  step_dummy(all_nominal_predictors())
+
+knn_wf <- workflow() %>%
+  add_model(knn_spec) %>%
+  add_recipe(knn_rec)
+
+knn_cv_results <- knn_wf %>%
   fit_resamples(train_folds)
+
+knn_cv_results %>%  
+  collect_metrics() %>%
+  kable() %>%
+  kable_styling(bootstrap_options = c("hover", "striped"))
 ```
+
+## Random Forest Classifier
 
 ```{r}
-dt_cv_results %>%
-  collect_metrics()
+dt_clf_spec <- rand_forest() %>%
+  set_engine("ranger") %>%
+  set_mode("classification") 
+
+grid_depth <- tibble(
+  "tree_depth" = c(2, 3, 4, 5, 8, 10, 12, 15, 20))
+
+dt_rec <- recipe( price_range ~ ., data = zillow_training) %>%
+  step_rm(description) %>%
+  step_impute_median(all_numeric_predictors()) %>% 
+  step_impute_mode(all_nominal_predictors()) %>%
+  step_novel(all_nominal_predictors()) %>%
+  step_unknown(all_nominal_predictors()) %>%
+  step_dummy(all_nominal_predictors())
+
+dt_wf <- workflow() %>%
+  add_model(dt_clf_spec) %>%
+  add_recipe(dt_rec)
+
+dt_fit <- dt_wf %>%
+  fit(zillow_training)
+
+dt_tune_results <- dt_wf %>%
+  tune_grid(grid = grid_depth,
+    resamples = train_folds)
+
+dt_tune_results %>%
+  collect_metrics() %>%
+  kable() %>%
+  kable_styling(bootstrap_options = c("hover", "striped"))
+
+# Predictions with new dataset
+dt_fit %>%
+  augment(comp)
+
+submission_df <- dt_fit %>%
+  augment(comp) %>%
+  select(id, contains(".pred"), -.pred_class) %>%
+  rename(prob_A = ".pred_0-250000",
+         prob_B = ".pred_250000-350000",
+         prob_C = ".pred_350000-450000",
+         prob_D = ".pred_450000-650000",
+         prob_E = ".pred_650000+")
+
+write.csv(submission_df, "rand_forest.csv", row.names = FALSE)
 ```
-
-```{r}
-dt_cv_results %>%
-  collect_metrics(summarize = FALSE)
-```
-
-The current model has low confidence in understanding what determines the homes values.
-
-<!-- It's possible that the size of a home plays a significant role on a homes value. -->
-
-<!-- ```{r} -->
-
-<!-- ggplot(data = zillow_data, mapping = aes(lotSizeSqFt, priceRange)) + -->
-
-<!--   labs(x = "Lot Size (Sq Ft)", y = "Price Range", title = "Price Range vs Lot Size") -->
-
-<!-- ``` -->
-
-<!-- ```{r} -->
-
-<!-- zillow_training %>% -->
-
-<!--   select(-description) %>% -->
-
-<!--   head() %>% -->
-
-<!--   kable() %>% -->
-
-<!--   kable_styling(bootstrap_options = c("stripped", "hover")) -->
-
-<!-- ``` -->
-
-<!-- ```{r} -->
-
-<!-- zillow_training %>% -->
-
-<!--   ggplot() +  -->
-
-<!--   geom_boxplot(aes(x = lotSizeSqFt, fill = homeType, y = homeType)) + -->
-
-<!--   # xlim(c(0,5000)) zooms in the scale but then leaves out other valuable information -->
-
-<!--   scale_x_log10() -->
-
-<!-- ``` -->
