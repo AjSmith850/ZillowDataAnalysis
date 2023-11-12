@@ -114,7 +114,12 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb1-7"><a href="#cb1-7" aria-hidden="true" tabindex="-1"></a><span class="fu">library</span>(ggplot2)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>zillow_data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"E:/MAT434/snhu-mat434-zillow-classification-challenge/data.csv"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>zillow_data <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"E:/MAT434/snhu-mat434-zillow-classification-challenge/data.csv"</span>)</span>
+<span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(zillow_data) <span class="ot">&lt;-</span> janitor<span class="sc">::</span><span class="fu">make_clean_names</span>(<span class="fu">names</span>(zillow_data))</span>
+<span id="cb2-3"><a href="#cb2-3" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb2-4"><a href="#cb2-4" aria-hidden="true" tabindex="-1"></a><span class="co"># add new data to perform predictions on based on learning from previous data</span></span>
+<span id="cb2-5"><a href="#cb2-5" aria-hidden="true" tabindex="-1"></a>comp <span class="ot">&lt;-</span> <span class="fu">read_csv</span>(<span class="st">"E:/MAT434/comp_csv/comp.csv"</span>)</span>
+<span id="cb2-6"><a href="#cb2-6" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(comp) <span class="ot">&lt;-</span> janitor<span class="sc">::</span><span class="fu">make_clean_names</span>(<span class="fu">names</span>(comp))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <section id="statement-of-purpose" class="level2">
 <h2 class="anchored" data-anchor-id="statement-of-purpose">Statement of Purpose</h2>
@@ -152,7 +157,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td style="text-align: left;">description</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">homeType</td>
+<td style="text-align: left;">home_type</td>
 </tr>
 <tr class="odd">
 <td style="text-align: left;">latitude</td>
@@ -161,34 +166,34 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <td style="text-align: left;">longitude</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">garageSpaces</td>
+<td style="text-align: left;">garage_spaces</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">hasSpa</td>
+<td style="text-align: left;">has_spa</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">yearBuilt</td>
+<td style="text-align: left;">year_built</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">numOfPatioAndPorchFeatures</td>
+<td style="text-align: left;">num_of_patio_and_porch_features</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">lotSizeSqFt</td>
+<td style="text-align: left;">lot_size_sq_ft</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">avgSchoolRating</td>
+<td style="text-align: left;">avg_school_rating</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">MedianStudentsPerTeacher</td>
+<td style="text-align: left;">median_students_per_teacher</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">numOfBathrooms</td>
+<td style="text-align: left;">num_of_bathrooms</td>
 </tr>
 <tr class="odd">
-<td style="text-align: left;">numOfBedrooms</td>
+<td style="text-align: left;">num_of_bedrooms</td>
 </tr>
 <tr class="even">
-<td style="text-align: left;">priceRange</td>
+<td style="text-align: left;">price_range</td>
 </tr>
 </tbody>
 </table>
@@ -209,19 +214,19 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <th style="text-align: right;" data-quarto-table-cell-role="th">id</th>
 <th style="text-align: left;" data-quarto-table-cell-role="th">city</th>
 <th style="text-align: left;" data-quarto-table-cell-role="th">description</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">homeType</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">home_type</th>
 <th style="text-align: right;" data-quarto-table-cell-role="th">latitude</th>
 <th style="text-align: right;" data-quarto-table-cell-role="th">longitude</th>
-<th style="text-align: right;" data-quarto-table-cell-role="th">garageSpaces</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">hasSpa</th>
-<th style="text-align: right;" data-quarto-table-cell-role="th">yearBuilt</th>
-<th style="text-align: right;" data-quarto-table-cell-role="th">numOfPatioAndPorchFeatures</th>
-<th style="text-align: right;" data-quarto-table-cell-role="th">lotSizeSqFt</th>
-<th style="text-align: right;" data-quarto-table-cell-role="th">avgSchoolRating</th>
-<th style="text-align: right;" data-quarto-table-cell-role="th">MedianStudentsPerTeacher</th>
-<th style="text-align: right;" data-quarto-table-cell-role="th">numOfBathrooms</th>
-<th style="text-align: right;" data-quarto-table-cell-role="th">numOfBedrooms</th>
-<th style="text-align: left;" data-quarto-table-cell-role="th">priceRange</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">garage_spaces</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">has_spa</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">year_built</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">num_of_patio_and_porch_features</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">lot_size_sq_ft</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">avg_school_rating</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">median_students_per_teacher</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">num_of_bathrooms</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">num_of_bedrooms</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">price_range</th>
 </tr>
 </thead>
 <tbody>
@@ -340,7 +345,7 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 </div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>counts <span class="ot">&lt;-</span> <span class="fu">table</span>(zillow_data<span class="sc">$</span>homeType)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb5"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" aria-hidden="true" tabindex="-1"></a>counts <span class="ot">&lt;-</span> <span class="fu">table</span>(zillow_data<span class="sc">$</span>home_type)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>Supply and demand is a common way of determining value, however we are currently unaware of what the <em>supply</em> is nor where the <em>demand</em> may be. There are 7044 single family homes, 3 multifamily homes, 263 condos, 92 town houses, 7 manufactured homes, 47 multiple occupancy’s, and 22 residential homes. A visual representation of this is shown below.</p>
 <div class="cell">
@@ -382,108 +387,464 @@ pre > code.sourceCode > span > a:first-child::before { text-decoration: underlin
 <span id="cb7-11"><a href="#cb7-11" aria-hidden="true" tabindex="-1"></a><span class="co">#homeType_barchart &lt;- homeType_barchart[homeType_barchart$home_type != "Condo",]</span></span>
 <span id="cb7-12"><a href="#cb7-12" aria-hidden="true" tabindex="-1"></a></span>
 <span id="cb7-13"><a href="#cb7-13" aria-hidden="true" tabindex="-1"></a><span class="co"># Reorder the factor levels based on the count</span></span>
-<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a>homeType_barchart<span class="sc">$</span>home_type <span class="ot">&lt;-</span> <span class="fu">reorder</span>(homeType_barchart<span class="sc">$</span>home_type, homeType_barchart<span class="sc">$</span>count)</span>
+<span id="cb7-14"><a href="#cb7-14" aria-hidden="true" tabindex="-1"></a><span class="co">#homeType_barchart$home_type &lt;- reorder(homeType_barchart$home_type, homeType_barchart$count)</span></span>
 <span id="cb7-15"><a href="#cb7-15" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a bar chart</span></span>
-<span id="cb7-17"><a href="#cb7-17" aria-hidden="true" tabindex="-1"></a><span class="fu">ggplot</span>(homeType_barchart, <span class="fu">aes</span>(<span class="at">x =</span> home_type, <span class="at">y =</span> count, <span class="at">fill =</span> home_type)) <span class="sc">+</span></span>
-<span id="cb7-18"><a href="#cb7-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">geom_bar</span>(<span class="at">stat =</span> <span class="st">"identity"</span>) <span class="sc">+</span></span>
-<span id="cb7-19"><a href="#cb7-19" aria-hidden="true" tabindex="-1"></a>  <span class="fu">labs</span>(<span class="at">title =</span> <span class="st">"Distribution of Different Home Types"</span>) <span class="sc">+</span></span>
-<span id="cb7-20"><a href="#cb7-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">ylab</span>(<span class="st">"Number of Property Types"</span>) <span class="sc">+</span></span>
-<span id="cb7-21"><a href="#cb7-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">xlab</span>(<span class="st">"Count"</span>) <span class="sc">+</span></span>
-<span id="cb7-22"><a href="#cb7-22" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb7-23"><a href="#cb7-23" aria-hidden="true" tabindex="-1"></a>  <span class="fu">coord_flip</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-<div class="cell-output-display">
-<p><img src="ZillowDataAnalysis_files/figure-html/unnamed-chunk-7-1.png" class="img-fluid" width="672"></p>
-</div>
+<span id="cb7-16"><a href="#cb7-16" aria-hidden="true" tabindex="-1"></a><span class="co"># Create a bar chart</span></span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
 <p>But does the property type have an affect on its value? We’ll test this by creating our training and test data.</p>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">names</span>(zillow_data) <span class="ot">&lt;-</span> janitor<span class="sc">::</span><span class="fu">make_clean_names</span>(<span class="fu">names</span>(zillow_data))</span>
-<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a>  </span>
-<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">434</span>)</span>
-<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a></span>
-<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>zillow_data_split <span class="ot">&lt;-</span> <span class="fu">initial_split</span>(zillow_data, <span class="at">prop =</span> <span class="fl">0.75</span>)</span>
-<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a>zillow_training <span class="ot">&lt;-</span> <span class="fu">training</span>(zillow_data_split)</span>
-<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a>zillow_test <span class="ot">&lt;-</span> <span class="fu">testing</span>(zillow_data_split)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb8"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" aria-hidden="true" tabindex="-1"></a><span class="fu">set.seed</span>(<span class="dv">434</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-3"><a href="#cb8-3" aria-hidden="true" tabindex="-1"></a>zillow_data_split <span class="ot">&lt;-</span> <span class="fu">initial_split</span>(zillow_data, <span class="at">prop =</span> <span class="fl">0.75</span>)</span>
+<span id="cb8-4"><a href="#cb8-4" aria-hidden="true" tabindex="-1"></a>zillow_training <span class="ot">&lt;-</span> <span class="fu">training</span>(zillow_data_split)</span>
+<span id="cb8-5"><a href="#cb8-5" aria-hidden="true" tabindex="-1"></a>zillow_test <span class="ot">&lt;-</span> <span class="fu">testing</span>(zillow_data_split)</span>
+<span id="cb8-6"><a href="#cb8-6" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb8-7"><a href="#cb8-7" aria-hidden="true" tabindex="-1"></a><span class="co"># create cross validation folds</span></span>
+<span id="cb8-8"><a href="#cb8-8" aria-hidden="true" tabindex="-1"></a>train_folds <span class="ot">&lt;-</span> <span class="fu">vfold_cv</span>(zillow_training, <span class="at">v =</span> <span class="dv">10</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+</div>
+</section>
+<section id="building-decision-tree" class="level2">
+<h2 class="anchored" data-anchor-id="building-decision-tree">Building Decision Tree</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co">#Create a model specification</span></span>
+<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>dt_spec <span class="ot">&lt;-</span> <span class="fu">decision_tree</span>(<span class="at">tree_depth =</span> <span class="fu">tune</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb9-3"><a href="#cb9-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="st">"rpart"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb9-4"><a href="#cb9-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_mode</span>(<span class="st">"classification"</span>) </span>
+<span id="cb9-5"><a href="#cb9-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-6"><a href="#cb9-6" aria-hidden="true" tabindex="-1"></a>grid_depth <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb9-7"><a href="#cb9-7" aria-hidden="true" tabindex="-1"></a>  <span class="st">"tree_depth"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">8</span>, <span class="dv">10</span>, <span class="dv">12</span>, <span class="dv">15</span>, <span class="dv">20</span>))</span>
+<span id="cb9-8"><a href="#cb9-8" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-9"><a href="#cb9-9" aria-hidden="true" tabindex="-1"></a><span class="co">#Create a recipe</span></span>
+<span id="cb9-10"><a href="#cb9-10" aria-hidden="true" tabindex="-1"></a>dt_rec <span class="ot">&lt;-</span> <span class="fu">recipe</span>(price_range <span class="sc">~</span> ., <span class="at">data =</span> zillow_training) <span class="sc">%&gt;%</span></span>
+<span id="cb9-11"><a href="#cb9-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_rm</span>(description) <span class="sc">%&gt;%</span></span>
+<span id="cb9-12"><a href="#cb9-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_impute_median</span>(<span class="fu">all_numeric_predictors</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb9-13"><a href="#cb9-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_impute_mode</span>(<span class="fu">all_nominal_predictors</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb9-14"><a href="#cb9-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_novel</span>(<span class="fu">all_nominal_predictors</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb9-15"><a href="#cb9-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_unknown</span>(<span class="fu">all_nominal_predictors</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb9-16"><a href="#cb9-16" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_dummy</span>(<span class="fu">all_nominal_predictors</span>())</span>
+<span id="cb9-17"><a href="#cb9-17" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-18"><a href="#cb9-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-19"><a href="#cb9-19" aria-hidden="true" tabindex="-1"></a>dt_wf <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb9-20"><a href="#cb9-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(dt_spec) <span class="sc">%&gt;%</span> </span>
+<span id="cb9-21"><a href="#cb9-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(dt_rec)</span>
+<span id="cb9-22"><a href="#cb9-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-23"><a href="#cb9-23" aria-hidden="true" tabindex="-1"></a><span class="co">#metrics &lt;- metric_set(accuracy, m_log_loss)</span></span>
+<span id="cb9-24"><a href="#cb9-24" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-25"><a href="#cb9-25" aria-hidden="true" tabindex="-1"></a>dt_tune_results <span class="ot">&lt;-</span> dt_wf <span class="sc">%&gt;%</span></span>
+<span id="cb9-26"><a href="#cb9-26" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tune_grid</span>(<span class="at">grid =</span> grid_depth,</span>
+<span id="cb9-27"><a href="#cb9-27" aria-hidden="true" tabindex="-1"></a>    <span class="at">resamples =</span> train_folds)</span>
+<span id="cb9-28"><a href="#cb9-28" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb9-29"><a href="#cb9-29" aria-hidden="true" tabindex="-1"></a>dt_tune_results <span class="sc">%&gt;%</span></span>
+<span id="cb9-30"><a href="#cb9-30" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect_metrics</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb9-31"><a href="#cb9-31" aria-hidden="true" tabindex="-1"></a>  <span class="fu">arrange</span>(<span class="sc">-</span>mean) <span class="sc">%&gt;%</span></span>
+<span id="cb9-32"><a href="#cb9-32" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb9-33"><a href="#cb9-33" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">bootstrap_options =</span> <span class="fu">c</span>(<span class="st">"hover"</span>, <span class="st">"striped"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-hover table-striped table-sm small" data-quarto-postprocess="true">
+<thead>
+<tr class="header">
+<th style="text-align: right;" data-quarto-table-cell-role="th">tree_depth</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">.metric</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">.estimator</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">mean</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">n</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">std_err</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">.config</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">roc_auc</td>
+<td style="text-align: left;">hand_till</td>
+<td style="text-align: right;">0.7376806</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.0030007</td>
+<td style="text-align: left;">Preprocessor1_Model4</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">8</td>
+<td style="text-align: left;">roc_auc</td>
+<td style="text-align: left;">hand_till</td>
+<td style="text-align: right;">0.7376806</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.0030007</td>
+<td style="text-align: left;">Preprocessor1_Model5</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">10</td>
+<td style="text-align: left;">roc_auc</td>
+<td style="text-align: left;">hand_till</td>
+<td style="text-align: right;">0.7376806</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.0030007</td>
+<td style="text-align: left;">Preprocessor1_Model6</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">12</td>
+<td style="text-align: left;">roc_auc</td>
+<td style="text-align: left;">hand_till</td>
+<td style="text-align: right;">0.7376806</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.0030007</td>
+<td style="text-align: left;">Preprocessor1_Model7</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">15</td>
+<td style="text-align: left;">roc_auc</td>
+<td style="text-align: left;">hand_till</td>
+<td style="text-align: right;">0.7376806</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.0030007</td>
+<td style="text-align: left;">Preprocessor1_Model8</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">20</td>
+<td style="text-align: left;">roc_auc</td>
+<td style="text-align: left;">hand_till</td>
+<td style="text-align: right;">0.7376806</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.0030007</td>
+<td style="text-align: left;">Preprocessor1_Model9</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">roc_auc</td>
+<td style="text-align: left;">hand_till</td>
+<td style="text-align: right;">0.7364509</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.0025827</td>
+<td style="text-align: left;">Preprocessor1_Model3</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">roc_auc</td>
+<td style="text-align: left;">hand_till</td>
+<td style="text-align: right;">0.7328754</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.0025829</td>
+<td style="text-align: left;">Preprocessor1_Model2</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">roc_auc</td>
+<td style="text-align: left;">hand_till</td>
+<td style="text-align: right;">0.7159319</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.0029113</td>
+<td style="text-align: left;">Preprocessor1_Model1</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">5</td>
+<td style="text-align: left;">accuracy</td>
+<td style="text-align: left;">multiclass</td>
+<td style="text-align: right;">0.4291256</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.0056120</td>
+<td style="text-align: left;">Preprocessor1_Model4</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">8</td>
+<td style="text-align: left;">accuracy</td>
+<td style="text-align: left;">multiclass</td>
+<td style="text-align: right;">0.4291256</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.0056120</td>
+<td style="text-align: left;">Preprocessor1_Model5</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">10</td>
+<td style="text-align: left;">accuracy</td>
+<td style="text-align: left;">multiclass</td>
+<td style="text-align: right;">0.4291256</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.0056120</td>
+<td style="text-align: left;">Preprocessor1_Model6</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">12</td>
+<td style="text-align: left;">accuracy</td>
+<td style="text-align: left;">multiclass</td>
+<td style="text-align: right;">0.4291256</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.0056120</td>
+<td style="text-align: left;">Preprocessor1_Model7</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">15</td>
+<td style="text-align: left;">accuracy</td>
+<td style="text-align: left;">multiclass</td>
+<td style="text-align: right;">0.4291256</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.0056120</td>
+<td style="text-align: left;">Preprocessor1_Model8</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">20</td>
+<td style="text-align: left;">accuracy</td>
+<td style="text-align: left;">multiclass</td>
+<td style="text-align: right;">0.4291256</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.0056120</td>
+<td style="text-align: left;">Preprocessor1_Model9</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">4</td>
+<td style="text-align: left;">accuracy</td>
+<td style="text-align: left;">multiclass</td>
+<td style="text-align: right;">0.4287700</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.0053204</td>
+<td style="text-align: left;">Preprocessor1_Model3</td>
+</tr>
+<tr class="odd">
+<td style="text-align: right;">3</td>
+<td style="text-align: left;">accuracy</td>
+<td style="text-align: left;">multiclass</td>
+<td style="text-align: right;">0.4221898</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.0044895</td>
+<td style="text-align: left;">Preprocessor1_Model2</td>
+</tr>
+<tr class="even">
+<td style="text-align: right;">2</td>
+<td style="text-align: left;">accuracy</td>
+<td style="text-align: left;">multiclass</td>
+<td style="text-align: right;">0.4047584</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.0055358</td>
+<td style="text-align: left;">Preprocessor1_Model1</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
 </div>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb9"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" aria-hidden="true" tabindex="-1"></a><span class="co"># create cross validation folds</span></span>
-<span id="cb9-2"><a href="#cb9-2" aria-hidden="true" tabindex="-1"></a>train_folds <span class="ot">&lt;-</span> <span class="fu">vfold_cv</span>(zillow_training, <span class="at">v =</span> <span class="dv">6</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>dt_spec <span class="ot">&lt;-</span> <span class="fu">decision_tree</span>() <span class="sc">%&gt;%</span></span>
+<div class="sourceCode cell-code" id="cb10"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" aria-hidden="true" tabindex="-1"></a>dt_clf_spec <span class="ot">&lt;-</span> <span class="fu">decision_tree</span>(<span class="at">tree_depth =</span> <span class="dv">5</span>) <span class="sc">%&gt;%</span></span>
 <span id="cb10-2"><a href="#cb10-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="st">"rpart"</span>) <span class="sc">%&gt;%</span></span>
-<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_mode</span>(<span class="st">"classification"</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb11"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" aria-hidden="true" tabindex="-1"></a><span class="co"># setting the recipe to predict the price range based on home type, year built, lot size, number of bathrooms and number of bedrooms</span></span>
-<span id="cb11-2"><a href="#cb11-2" aria-hidden="true" tabindex="-1"></a>dt_rec <span class="ot">&lt;-</span> <span class="fu">recipe</span>(price_range <span class="sc">~</span> home_type <span class="sc">+</span> year_built <span class="sc">+</span> lot_size_sq_ft <span class="sc">+</span> num_of_bathrooms <span class="sc">+</span> num_of_bedrooms <span class="sc">+</span> has_spa, <span class="at">data =</span> zillow_training) <span class="sc">%&gt;%</span></span>
-<span id="cb11-3"><a href="#cb11-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_impute_median</span>(<span class="fu">all_numeric_predictors</span>()) <span class="sc">%&gt;%</span> </span>
-<span id="cb11-4"><a href="#cb11-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_impute_mode</span>(<span class="fu">all_nominal_predictors</span>()) <span class="sc">%&gt;%</span></span>
-<span id="cb11-5"><a href="#cb11-5" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_dummy</span>(<span class="fu">all_nominal_predictors</span>())</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a><span class="co"># creating the workflow from specification and recipe</span></span>
-<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>dt_wf <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">%&gt;%</span></span>
-<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(dt_spec) <span class="sc">%&gt;%</span></span>
-<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(dt_rec)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a>dt_cv_results <span class="ot">&lt;-</span> dt_wf <span class="sc">%&gt;%</span></span>
-<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fit_resamples</span>(train_folds)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
-</div>
-<div class="cell">
-<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>dt_cv_results <span class="sc">%&gt;%</span></span>
-<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect_metrics</span>()</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<span id="cb10-3"><a href="#cb10-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_mode</span>(<span class="st">"classification"</span>) </span>
+<span id="cb10-4"><a href="#cb10-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-5"><a href="#cb10-5" aria-hidden="true" tabindex="-1"></a>dt_rec <span class="ot">&lt;-</span> <span class="fu">recipe</span>( price_range <span class="sc">~</span> ., <span class="at">data =</span> zillow_training) <span class="sc">%&gt;%</span></span>
+<span id="cb10-6"><a href="#cb10-6" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_rm</span>(description) <span class="sc">%&gt;%</span></span>
+<span id="cb10-7"><a href="#cb10-7" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_impute_median</span>(<span class="fu">all_numeric_predictors</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb10-8"><a href="#cb10-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_impute_mode</span>(<span class="fu">all_nominal_predictors</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb10-9"><a href="#cb10-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_novel</span>(<span class="fu">all_nominal_predictors</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb10-10"><a href="#cb10-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_unknown</span>(<span class="fu">all_nominal_predictors</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb10-11"><a href="#cb10-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_dummy</span>(<span class="fu">all_nominal_predictors</span>())</span>
+<span id="cb10-12"><a href="#cb10-12" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-13"><a href="#cb10-13" aria-hidden="true" tabindex="-1"></a>dt_wf <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb10-14"><a href="#cb10-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(dt_clf_spec) <span class="sc">%&gt;%</span></span>
+<span id="cb10-15"><a href="#cb10-15" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(dt_rec)</span>
+<span id="cb10-16"><a href="#cb10-16" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-17"><a href="#cb10-17" aria-hidden="true" tabindex="-1"></a>dt_fit <span class="ot">&lt;-</span> dt_wf <span class="sc">%&gt;%</span></span>
+<span id="cb10-18"><a href="#cb10-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fit</span>(zillow_training)</span>
+<span id="cb10-19"><a href="#cb10-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb10-20"><a href="#cb10-20" aria-hidden="true" tabindex="-1"></a><span class="co"># Predictions with new dataset</span></span>
+<span id="cb10-21"><a href="#cb10-21" aria-hidden="true" tabindex="-1"></a>dt_fit <span class="sc">%&gt;%</span></span>
+<span id="cb10-22"><a href="#cb10-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">augment</span>(comp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 2 × 6
-  .metric  .estimator  mean     n std_err .config             
-  &lt;chr&gt;    &lt;chr&gt;      &lt;dbl&gt; &lt;int&gt;   &lt;dbl&gt; &lt;chr&gt;               
-1 accuracy multiclass 0.376     6 0.00673 Preprocessor1_Model1
-2 roc_auc  hand_till  0.693     6 0.00226 Preprocessor1_Model1</code></pre>
+<pre><code># A tibble: 2,502 × 21
+      id city   description   home_type latitude longitude garage_spaces has_spa
+   &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;         &lt;chr&gt;        &lt;dbl&gt;     &lt;dbl&gt;         &lt;dbl&gt; &lt;lgl&gt;  
+ 1     1 austin "Pride in ow… Single F…     30.4     -97.7             2 FALSE  
+ 2     2 austin "Enjoy endle… Single F…     30.4     -97.8             0 FALSE  
+ 3     3 austin "Awesome opp… Single F…     30.2     -97.8             4 TRUE   
+ 4     4 austin "Gorgeous op… Single F…     30.4     -97.6             2 FALSE  
+ 5     5 austin "Two miles f… Single F…     30.3     -97.7             0 FALSE  
+ 6     6 austin "4602 Sherwy… Single F…     30.3     -97.7             0 FALSE  
+ 7     7 austin "Contemporar… Condo         30.3     -97.7             1 FALSE  
+ 8     8 austin "Investment … Single F…     30.2     -97.8             0 FALSE  
+ 9     9 austin "Amazing Sou… Single F…     30.2     -97.8             2 FALSE  
+10    10 austin "5217 Bluest… Single F…     30.2     -97.9             0 FALSE  
+# ℹ 2,492 more rows
+# ℹ 13 more variables: year_built &lt;dbl&gt;, num_of_patio_and_porch_features &lt;dbl&gt;,
+#   lot_size_sq_ft &lt;dbl&gt;, avg_school_rating &lt;dbl&gt;,
+#   median_students_per_teacher &lt;dbl&gt;, num_of_bathrooms &lt;dbl&gt;,
+#   num_of_bedrooms &lt;dbl&gt;, .pred_class &lt;fct&gt;, `.pred_0-250000` &lt;dbl&gt;,
+#   `.pred_250000-350000` &lt;dbl&gt;, `.pred_350000-450000` &lt;dbl&gt;,
+#   `.pred_450000-650000` &lt;dbl&gt;, `.pred_650000+` &lt;dbl&gt;</code></pre>
 </div>
+<div class="sourceCode cell-code" id="cb12"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" aria-hidden="true" tabindex="-1"></a>submission_df <span class="ot">&lt;-</span> dt_fit <span class="sc">%&gt;%</span></span>
+<span id="cb12-2"><a href="#cb12-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">augment</span>(comp) <span class="sc">%&gt;%</span></span>
+<span id="cb12-3"><a href="#cb12-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(id, <span class="fu">contains</span>(<span class="st">".pred"</span>), <span class="sc">-</span>.pred_class) <span class="sc">%&gt;%</span></span>
+<span id="cb12-4"><a href="#cb12-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">prob_A =</span> <span class="st">".pred_0-250000"</span>,</span>
+<span id="cb12-5"><a href="#cb12-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">prob_B =</span> <span class="st">".pred_250000-350000"</span>,</span>
+<span id="cb12-6"><a href="#cb12-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">prob_C =</span> <span class="st">".pred_350000-450000"</span>,</span>
+<span id="cb12-7"><a href="#cb12-7" aria-hidden="true" tabindex="-1"></a>         <span class="at">prob_D =</span> <span class="st">".pred_450000-650000"</span>,</span>
+<span id="cb12-8"><a href="#cb12-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">prob_E =</span> <span class="st">".pred_650000+"</span>)</span>
+<span id="cb12-9"><a href="#cb12-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb12-10"><a href="#cb12-10" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(submission_df, <span class="st">"submission.csv"</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
+</section>
+<section id="knn-model-construction-and-interpretation" class="level2">
+<h2 class="anchored" data-anchor-id="knn-model-construction-and-interpretation">KNN Model Construction and Interpretation</h2>
 <div class="cell">
-<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>dt_cv_results <span class="sc">%&gt;%</span></span>
-<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect_metrics</span>(<span class="at">summarize =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="sourceCode cell-code" id="cb13"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" aria-hidden="true" tabindex="-1"></a><span class="co">#knn workflow</span></span>
+<span id="cb13-2"><a href="#cb13-2" aria-hidden="true" tabindex="-1"></a>knn_spec <span class="ot">&lt;-</span> <span class="fu">nearest_neighbor</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb13-3"><a href="#cb13-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="st">"kknn"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb13-4"><a href="#cb13-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_mode</span>(<span class="st">"classification"</span>)</span>
+<span id="cb13-5"><a href="#cb13-5" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-6"><a href="#cb13-6" aria-hidden="true" tabindex="-1"></a><span class="co"># building recipe</span></span>
+<span id="cb13-7"><a href="#cb13-7" aria-hidden="true" tabindex="-1"></a>knn_rec <span class="ot">&lt;-</span> <span class="fu">recipe</span>(price_range <span class="sc">~</span> lot_size_sq_ft <span class="sc">+</span> num_of_bedrooms <span class="sc">+</span> num_of_bathrooms <span class="sc">+</span> avg_school_rating, <span class="at">data =</span> zillow_training) <span class="sc">%&gt;%</span></span>
+<span id="cb13-8"><a href="#cb13-8" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_impute_median</span>(<span class="fu">all_numeric_predictors</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb13-9"><a href="#cb13-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_unknown</span>(<span class="fu">all_nominal_predictors</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb13-10"><a href="#cb13-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_dummy</span>(<span class="fu">all_nominal_predictors</span>())</span>
+<span id="cb13-11"><a href="#cb13-11" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-12"><a href="#cb13-12" aria-hidden="true" tabindex="-1"></a>knn_wf <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb13-13"><a href="#cb13-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(knn_spec) <span class="sc">%&gt;%</span></span>
+<span id="cb13-14"><a href="#cb13-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(knn_rec)</span>
+<span id="cb13-15"><a href="#cb13-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-16"><a href="#cb13-16" aria-hidden="true" tabindex="-1"></a>knn_cv_results <span class="ot">&lt;-</span> knn_wf <span class="sc">%&gt;%</span></span>
+<span id="cb13-17"><a href="#cb13-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fit_resamples</span>(train_folds)</span>
+<span id="cb13-18"><a href="#cb13-18" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb13-19"><a href="#cb13-19" aria-hidden="true" tabindex="-1"></a>knn_cv_results <span class="sc">%&gt;%</span>  </span>
+<span id="cb13-20"><a href="#cb13-20" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect_metrics</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb13-21"><a href="#cb13-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb13-22"><a href="#cb13-22" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">bootstrap_options =</span> <span class="fu">c</span>(<span class="st">"hover"</span>, <span class="st">"striped"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-hover table-striped table-sm small" data-quarto-postprocess="true">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">.metric</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">.estimator</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">mean</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">n</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">std_err</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">.config</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">accuracy</td>
+<td style="text-align: left;">multiclass</td>
+<td style="text-align: right;">0.4301998</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.0075829</td>
+<td style="text-align: left;">Preprocessor1_Model1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">roc_auc</td>
+<td style="text-align: left;">hand_till</td>
+<td style="text-align: right;">0.7293956</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.0046524</td>
+<td style="text-align: left;">Preprocessor1_Model1</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+</div>
+</section>
+<section id="random-forest-classifier" class="level2">
+<h2 class="anchored" data-anchor-id="random-forest-classifier">Random Forest Classifier</h2>
+<div class="cell">
+<div class="sourceCode cell-code" id="cb14"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" aria-hidden="true" tabindex="-1"></a>dt_clf_spec <span class="ot">&lt;-</span> <span class="fu">rand_forest</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb14-2"><a href="#cb14-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_engine</span>(<span class="st">"ranger"</span>) <span class="sc">%&gt;%</span></span>
+<span id="cb14-3"><a href="#cb14-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">set_mode</span>(<span class="st">"classification"</span>) </span>
+<span id="cb14-4"><a href="#cb14-4" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-5"><a href="#cb14-5" aria-hidden="true" tabindex="-1"></a>grid_depth <span class="ot">&lt;-</span> <span class="fu">tibble</span>(</span>
+<span id="cb14-6"><a href="#cb14-6" aria-hidden="true" tabindex="-1"></a>  <span class="st">"tree_depth"</span> <span class="ot">=</span> <span class="fu">c</span>(<span class="dv">2</span>, <span class="dv">3</span>, <span class="dv">4</span>, <span class="dv">5</span>, <span class="dv">8</span>, <span class="dv">10</span>, <span class="dv">12</span>, <span class="dv">15</span>, <span class="dv">20</span>))</span>
+<span id="cb14-7"><a href="#cb14-7" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-8"><a href="#cb14-8" aria-hidden="true" tabindex="-1"></a>dt_rec <span class="ot">&lt;-</span> <span class="fu">recipe</span>( price_range <span class="sc">~</span> ., <span class="at">data =</span> zillow_training) <span class="sc">%&gt;%</span></span>
+<span id="cb14-9"><a href="#cb14-9" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_rm</span>(description) <span class="sc">%&gt;%</span></span>
+<span id="cb14-10"><a href="#cb14-10" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_impute_median</span>(<span class="fu">all_numeric_predictors</span>()) <span class="sc">%&gt;%</span> </span>
+<span id="cb14-11"><a href="#cb14-11" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_impute_mode</span>(<span class="fu">all_nominal_predictors</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb14-12"><a href="#cb14-12" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_novel</span>(<span class="fu">all_nominal_predictors</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb14-13"><a href="#cb14-13" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_unknown</span>(<span class="fu">all_nominal_predictors</span>()) <span class="sc">%&gt;%</span></span>
+<span id="cb14-14"><a href="#cb14-14" aria-hidden="true" tabindex="-1"></a>  <span class="fu">step_dummy</span>(<span class="fu">all_nominal_predictors</span>())</span>
+<span id="cb14-15"><a href="#cb14-15" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-16"><a href="#cb14-16" aria-hidden="true" tabindex="-1"></a>dt_wf <span class="ot">&lt;-</span> <span class="fu">workflow</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb14-17"><a href="#cb14-17" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_model</span>(dt_clf_spec) <span class="sc">%&gt;%</span></span>
+<span id="cb14-18"><a href="#cb14-18" aria-hidden="true" tabindex="-1"></a>  <span class="fu">add_recipe</span>(dt_rec)</span>
+<span id="cb14-19"><a href="#cb14-19" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-20"><a href="#cb14-20" aria-hidden="true" tabindex="-1"></a>dt_fit <span class="ot">&lt;-</span> dt_wf <span class="sc">%&gt;%</span></span>
+<span id="cb14-21"><a href="#cb14-21" aria-hidden="true" tabindex="-1"></a>  <span class="fu">fit</span>(zillow_training)</span>
+<span id="cb14-22"><a href="#cb14-22" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb14-23"><a href="#cb14-23" aria-hidden="true" tabindex="-1"></a>dt_tune_results <span class="ot">&lt;-</span> dt_wf <span class="sc">%&gt;%</span></span>
+<span id="cb14-24"><a href="#cb14-24" aria-hidden="true" tabindex="-1"></a>  <span class="fu">tune_grid</span>(<span class="at">grid =</span> grid_depth,</span>
+<span id="cb14-25"><a href="#cb14-25" aria-hidden="true" tabindex="-1"></a>    <span class="at">resamples =</span> train_folds)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output cell-output-stderr">
+<pre><code>Warning: No tuning parameters have been detected, performance will be evaluated
+using the resamples with no tuning. Did you want to [tune()] parameters?</code></pre>
+</div>
+<div class="sourceCode cell-code" id="cb16"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb16-1"><a href="#cb16-1" aria-hidden="true" tabindex="-1"></a>dt_tune_results <span class="sc">%&gt;%</span></span>
+<span id="cb16-2"><a href="#cb16-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">collect_metrics</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb16-3"><a href="#cb16-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable</span>() <span class="sc">%&gt;%</span></span>
+<span id="cb16-4"><a href="#cb16-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">kable_styling</span>(<span class="at">bootstrap_options =</span> <span class="fu">c</span>(<span class="st">"hover"</span>, <span class="st">"striped"</span>))</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
+<div class="cell-output-display">
+<table class="table table-hover table-striped table-sm small" data-quarto-postprocess="true">
+<thead>
+<tr class="header">
+<th style="text-align: left;" data-quarto-table-cell-role="th">.metric</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">.estimator</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">mean</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">n</th>
+<th style="text-align: right;" data-quarto-table-cell-role="th">std_err</th>
+<th style="text-align: left;" data-quarto-table-cell-role="th">.config</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td style="text-align: left;">accuracy</td>
+<td style="text-align: left;">multiclass</td>
+<td style="text-align: right;">0.6137210</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.0064654</td>
+<td style="text-align: left;">Preprocessor1_Model1</td>
+</tr>
+<tr class="even">
+<td style="text-align: left;">roc_auc</td>
+<td style="text-align: left;">hand_till</td>
+<td style="text-align: right;">0.8780443</td>
+<td style="text-align: right;">10</td>
+<td style="text-align: right;">0.0026064</td>
+<td style="text-align: left;">Preprocessor1_Model1</td>
+</tr>
+</tbody>
+</table>
+
+
+</div>
+<div class="sourceCode cell-code" id="cb17"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb17-1"><a href="#cb17-1" aria-hidden="true" tabindex="-1"></a><span class="co"># Predictions with new dataset</span></span>
+<span id="cb17-2"><a href="#cb17-2" aria-hidden="true" tabindex="-1"></a>dt_fit <span class="sc">%&gt;%</span></span>
+<span id="cb17-3"><a href="#cb17-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">augment</span>(comp)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
-<pre><code># A tibble: 12 × 5
-   id    .metric  .estimator .estimate .config             
-   &lt;chr&gt; &lt;chr&gt;    &lt;chr&gt;          &lt;dbl&gt; &lt;chr&gt;               
- 1 Fold1 accuracy multiclass     0.367 Preprocessor1_Model1
- 2 Fold1 roc_auc  hand_till      0.691 Preprocessor1_Model1
- 3 Fold2 accuracy multiclass     0.366 Preprocessor1_Model1
- 4 Fold2 roc_auc  hand_till      0.693 Preprocessor1_Model1
- 5 Fold3 accuracy multiclass     0.372 Preprocessor1_Model1
- 6 Fold3 roc_auc  hand_till      0.690 Preprocessor1_Model1
- 7 Fold4 accuracy multiclass     0.359 Preprocessor1_Model1
- 8 Fold4 roc_auc  hand_till      0.689 Preprocessor1_Model1
- 9 Fold5 accuracy multiclass     0.386 Preprocessor1_Model1
-10 Fold5 roc_auc  hand_till      0.692 Preprocessor1_Model1
-11 Fold6 accuracy multiclass     0.403 Preprocessor1_Model1
-12 Fold6 roc_auc  hand_till      0.704 Preprocessor1_Model1</code></pre>
+<pre><code># A tibble: 2,502 × 21
+      id city   description   home_type latitude longitude garage_spaces has_spa
+   &lt;dbl&gt; &lt;chr&gt;  &lt;chr&gt;         &lt;chr&gt;        &lt;dbl&gt;     &lt;dbl&gt;         &lt;dbl&gt; &lt;lgl&gt;  
+ 1     1 austin "Pride in ow… Single F…     30.4     -97.7             2 FALSE  
+ 2     2 austin "Enjoy endle… Single F…     30.4     -97.8             0 FALSE  
+ 3     3 austin "Awesome opp… Single F…     30.2     -97.8             4 TRUE   
+ 4     4 austin "Gorgeous op… Single F…     30.4     -97.6             2 FALSE  
+ 5     5 austin "Two miles f… Single F…     30.3     -97.7             0 FALSE  
+ 6     6 austin "4602 Sherwy… Single F…     30.3     -97.7             0 FALSE  
+ 7     7 austin "Contemporar… Condo         30.3     -97.7             1 FALSE  
+ 8     8 austin "Investment … Single F…     30.2     -97.8             0 FALSE  
+ 9     9 austin "Amazing Sou… Single F…     30.2     -97.8             2 FALSE  
+10    10 austin "5217 Bluest… Single F…     30.2     -97.9             0 FALSE  
+# ℹ 2,492 more rows
+# ℹ 13 more variables: year_built &lt;dbl&gt;, num_of_patio_and_porch_features &lt;dbl&gt;,
+#   lot_size_sq_ft &lt;dbl&gt;, avg_school_rating &lt;dbl&gt;,
+#   median_students_per_teacher &lt;dbl&gt;, num_of_bathrooms &lt;dbl&gt;,
+#   num_of_bedrooms &lt;dbl&gt;, .pred_class &lt;fct&gt;, `.pred_0-250000` &lt;dbl&gt;,
+#   `.pred_250000-350000` &lt;dbl&gt;, `.pred_350000-450000` &lt;dbl&gt;,
+#   `.pred_450000-650000` &lt;dbl&gt;, `.pred_650000+` &lt;dbl&gt;</code></pre>
 </div>
+<div class="sourceCode cell-code" id="cb19"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb19-1"><a href="#cb19-1" aria-hidden="true" tabindex="-1"></a>submission_df <span class="ot">&lt;-</span> dt_fit <span class="sc">%&gt;%</span></span>
+<span id="cb19-2"><a href="#cb19-2" aria-hidden="true" tabindex="-1"></a>  <span class="fu">augment</span>(comp) <span class="sc">%&gt;%</span></span>
+<span id="cb19-3"><a href="#cb19-3" aria-hidden="true" tabindex="-1"></a>  <span class="fu">select</span>(id, <span class="fu">contains</span>(<span class="st">".pred"</span>), <span class="sc">-</span>.pred_class) <span class="sc">%&gt;%</span></span>
+<span id="cb19-4"><a href="#cb19-4" aria-hidden="true" tabindex="-1"></a>  <span class="fu">rename</span>(<span class="at">prob_A =</span> <span class="st">".pred_0-250000"</span>,</span>
+<span id="cb19-5"><a href="#cb19-5" aria-hidden="true" tabindex="-1"></a>         <span class="at">prob_B =</span> <span class="st">".pred_250000-350000"</span>,</span>
+<span id="cb19-6"><a href="#cb19-6" aria-hidden="true" tabindex="-1"></a>         <span class="at">prob_C =</span> <span class="st">".pred_350000-450000"</span>,</span>
+<span id="cb19-7"><a href="#cb19-7" aria-hidden="true" tabindex="-1"></a>         <span class="at">prob_D =</span> <span class="st">".pred_450000-650000"</span>,</span>
+<span id="cb19-8"><a href="#cb19-8" aria-hidden="true" tabindex="-1"></a>         <span class="at">prob_E =</span> <span class="st">".pred_650000+"</span>)</span>
+<span id="cb19-9"><a href="#cb19-9" aria-hidden="true" tabindex="-1"></a></span>
+<span id="cb19-10"><a href="#cb19-10" aria-hidden="true" tabindex="-1"></a><span class="fu">write.csv</span>(submission_df, <span class="st">"rand_forest.csv"</span>, <span class="at">row.names =</span> <span class="cn">FALSE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>The current model has low confidence in understanding what determines the homes values.</p>
-<!-- It's possible that the size of a home plays a significant role on a homes value. -->
-<!-- ```{r} -->
-<!-- ggplot(data = zillow_data, mapping = aes(lotSizeSqFt, priceRange)) + -->
-<!--   labs(x = "Lot Size (Sq Ft)", y = "Price Range", title = "Price Range vs Lot Size") -->
-<!-- ``` -->
-<!-- ```{r} -->
-<!-- zillow_training %>% -->
-<!--   select(-description) %>% -->
-<!--   head() %>% -->
-<!--   kable() %>% -->
-<!--   kable_styling(bootstrap_options = c("stripped", "hover")) -->
-<!-- ``` -->
-<!-- ```{r} -->
-<!-- zillow_training %>% -->
-<!--   ggplot() +  -->
-<!--   geom_boxplot(aes(x = lotSizeSqFt, fill = homeType, y = homeType)) + -->
-<!--   # xlim(c(0,5000)) zooms in the scale but then leaves out other valuable information -->
-<!--   scale_x_log10() -->
-<!-- ``` -->
 </section>
 
 </main>
