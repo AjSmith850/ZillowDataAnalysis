@@ -6,7 +6,6 @@ editor: visual
 ---
 
 ```{r message=FALSE}
-#Libraries 
 library(tidyverse)
 library(tidymodels)
 library(kableExtra)
@@ -16,7 +15,8 @@ library(ggplot2)
 library(patchwork)
 library(tidytext)
 library(dials)
-
+library(tensorflow)
+library(reticulate)
 ```
 
 ```{r message=FALSE}
@@ -48,7 +48,9 @@ colnames_df %>%
   knitr::kable() %>%
   kableExtra::kable_styling(bootstrap_options = c("hover", "striped"))
 ```
-A visual map of where these properties are located and what they're valued at can develop an understanding on what  contributes to a properties value.
+
+A visual map of where these properties are located and what they're valued at can develop an understanding on what contributes to a properties value.
+
 ```{r}
 zillow_data %>%
   ggplot(aes(longitude, latitude, color = price_range)) +
@@ -133,12 +135,13 @@ train_folds <- vfold_cv(zillow_training, v = 10)
 ## Using Decision Trees
 ```{r}
 #Create a model specification
-dt_spec <- decision_tree(tree_depth = tune()) %>%
+dt_spec <- decision_tree(
+  tree_depth = tune()
+  ) %>%
   set_engine("rpart") %>%
   set_mode("classification") 
 
-grid_depth <- tibble(
-  "tree_depth" = c(2, 3, 4, 5, 8, 10, 12, 15, 20))
+grid_depth <- tibble("tree_depth" = c(2, 3, 4, 5, 8, 10, 12, 15, 20))
 
 #Create a recipe
 dt_rec <- recipe(price_range ~ ., data = zillow_training) %>%
@@ -153,8 +156,6 @@ dt_wf <- workflow() %>%
   add_model(dt_spec) %>% 
   add_recipe(dt_rec)
 
-#metrics <- metric_set(accuracy, m_log_loss)
-
 dt_tune_results <- dt_wf %>%
   tune_grid(
     grid = grid_depth,
@@ -166,11 +167,14 @@ dt_tune_results %>%
   arrange(-mean) %>%
   kable() %>%
   kable_styling(bootstrap_options = c("hover", "striped"))
-# 
-# ```
-# 
-# ```{r}
-dt_clf_spec <- decision_tree(tree_depth = 5) %>%
+
+```
+
+Rebuild model using best performing metrics and fit to training data
+```{r}
+dt_clf_spec <- decision_tree(
+  tree_depth = 5 # setting grid depth to 5 based on performance results
+  ) %>% 
   set_engine("rpart") %>%
   set_mode("classification") 
 
@@ -189,8 +193,8 @@ dt_wf <- workflow() %>%
 dt_fit <- dt_wf %>%
   fit(zillow_training)
 
-# Predictions with new dataset
-dt_fit %>%
+
+dt_fit %>% # Predictions with new data set
   augment(comp)
 
 submission_df <- dt_fit %>%
@@ -202,11 +206,10 @@ submission_df <- dt_fit %>%
          prob_D = ".pred_450000-650000",
          prob_E = ".pred_650000+")
 
-write.csv(submission_df, "submission.csv", row.names = FALSE)
+write.csv(submission_df, "decision_tree.csv", row.names = FALSE)
 ```
 
 ## KNN Model Construction and Interpretation
-
 ```{r}
 #knn workflow
 knn_spec <- nearest_neighbor() %>%
@@ -232,18 +235,23 @@ knn_cv_results %>%
   kable_styling(bootstrap_options = c("hover", "striped"))
 ```
 
-
 ## Random Forest Classifier
 ```{r}
-grid_depth <- tibble("tree_depth" = c(2, 3, 4, 5, 8, 10, 12, 15, 20))
+train_folds <- vfold_cv(zillow_training, v = 10)
 
 rf_spec <- rand_forest(
+  trees = tune(),
   mtry = tune(),
-  trees = 100,
-  min_n = tune(),
+  min_n = tune()
 ) %>%
   set_engine("ranger") %>%
   set_mode("classification")
+
+grid_depth <- tibble( # 'crossing':Crossing intertwines settings
+  "trees" = c(5000, 2000, 4000), 
+  "mtry" = c(10, 3, 5),
+  "min_n" = c(10, 15, 20)
+)
 
 rf_rec <- recipe( price_range ~ ., data = zillow_training) %>%
   step_rm(description) %>%
@@ -253,24 +261,32 @@ rf_rec <- recipe( price_range ~ ., data = zillow_training) %>%
   step_unknown(all_nominal_predictors()) %>%
   step_dummy(all_nominal_predictors())
 
+
 rf_wf <- workflow() %>%
   add_recipe(rf_rec) %>%
   add_model(rf_spec)
 
 rf_tune_results <- rf_wf %>%
   tune_grid(     
-    resamples = train_folds
+    resamples = train_folds,
+    grid = grid_depth
   )
 
-tuned_metrics <- rf_tune_results %>%
+rf_tune_results %>%
   collect_metrics()
-print(tuned_metrics)
+```
 
-rf_fit <- rf_workflow %>%
-  fit(zillow_training)
+Select the best Random Forest model and fit to training data
+```{r}
+best_params <- rf_tune_results %>%
+               select_best("accuracy")  # using 'accuracy' as desired metric
+best_params
 
-# Predictions with new dataset
-rf_fit %>%
+rf_spec_final <- finalize_workflow(rf_wf, best_params)
+
+rf_fit <- fit(rf_spec_final, data = zillow_training)
+
+augmented_data <- rf_fit %>%
   augment(comp)
 
 submission_df <- rf_fit %>%
@@ -291,16 +307,19 @@ train_folds <- vfold_cv(zillow_training, v = 10)
 
 # What we're going to tune
 boost_spec <- boost_tree(
-  mode = "classification",
-  trees = 100, # boosting iterations
-  min_n = 2, # determine minimum number of elements in group for further splitting
-  learn_rate = 0.1
+  trees = tune(), # boosting iterations
+  min_n = tune(), # determine minimum number of elements in group for further splitting
+  learn_rate = tune()
 ) %>%
   set_engine("xgboost") %>%
   set_mode("classification")
 
-# grid_depth <- tibble(
-#   "tree_depth" = c(2, 3, 4, 5, 8, 10, 12, 15, 20))
+# The tuning
+grid_depth <- tibble( # 'crossing':Crossing intertwines settings
+  "trees" =      c(19, 20, 21, 22, 23, 24, 25), 
+  "min_n" =      c(17, 18, 19, 20, 21, 22, 23),
+  "learn_rate" = c(0.43, 0.44, 0.45, 0.44,0.46, 0.47, 0.48)
+)
 
 boost_rec <- recipe( price_range ~ ., data = zillow_training) %>%
   step_rm(description) %>%
@@ -315,10 +334,26 @@ boost_wf <- workflow() %>%
   add_recipe(boost_rec)
 
 boost_results <- boost_wf %>%
-  fit_resamples(train_folds)
+  tune_grid( # this tune_grid will randomly tune the values 'trees', 'min_n', & 'learn_rate'
+    grid = grid_depth, # here we've chosen to perform random tuning 3 times
+    resamples = train_folds # training folds was selected above to be 10
+  )
 
-boost_fit <- boost_wf %>%
-  fit(zillow_training)
+boost_results %>%
+  collect_metrics() # display results from the tuning iterations
+```
+
+Select the best Boosted model and fit to training data
+```{r}
+best_boost_params <- boost_results %>%
+               select_best("accuracy")  # using 'accuracy' as desired metric
+
+boost_spec_final <- finalize_workflow(boost_wf, best_boost_params)
+
+boost_fit <- fit(boost_spec_final, data = zillow_training)
+
+boost_predictions_test <- boost_fit %>%
+  augment(zillow_test)
 
 boost_fit %>%
   augment(zillow_test) 
@@ -337,7 +372,7 @@ submission_df <- boost_fit %>%
          prob_E = ".pred_650000+")
 
 
-write.csv(submission_df, "boosted_zillow.csv", row.names = FALSE)
+write.csv(submission_df, "boosted_model.csv", row.names = FALSE)
 ```
 
 ## Exploring Text and Tokenization (the importance of the description in home value)
@@ -351,7 +386,8 @@ tokenized_openers %>%
   kable() %>%
   kable_styling(bootstrap_options = c("hover", "striped"))
 ```
-```{r} 
+
+```{r}
 # TODO this code is Imported Code from a Dr. G lesson 
 zillow_training %>%
   unnest_tokens(word, description) %>%
